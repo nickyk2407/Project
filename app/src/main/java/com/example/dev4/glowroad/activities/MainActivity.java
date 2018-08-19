@@ -15,11 +15,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.dev4.glowroad.GlowApplication;
 import com.example.dev4.glowroad.R;
 import com.example.dev4.glowroad.adapter.PhotoViewAdapter;
 import com.example.dev4.glowroad.apiutil.NetworkState;
 import com.example.dev4.glowroad.constant.Constants;
 import com.example.dev4.glowroad.datasource.PhotoDataSource;
+import com.example.dev4.glowroad.di.component.DaggerPhotoSearchComponent;
+import com.example.dev4.glowroad.di.component.PhotoSearchComponent;
+import com.example.dev4.glowroad.di.modules.ActivityModule;
 import com.example.dev4.glowroad.search.Photo;
 import com.example.dev4.glowroad.search.Photos;
 import com.example.dev4.glowroad.viewmodel.PhotoViewModel;
@@ -34,11 +38,13 @@ public class MainActivity extends AppCompatActivity {
     protected Toolbar toolbar;*/
 
     private Unbinder unbinder;
+    private PhotoSearchComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        component().inject(this);
         unbinder = ButterKnife.bind(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -46,6 +52,16 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.fragment_layout, new FickrPhotosFragment())
                     .commit();
         }
+    }
+
+    public PhotoSearchComponent component(){
+        if (component == null) {
+            component = DaggerPhotoSearchComponent.builder()
+                    .applicationComponent(((GlowApplication) getApplication()).getApplicationComponent())
+                    .activityModule(new ActivityModule(this))
+                    .build();
+        }
+        return component;
     }
 
     private void setToolbarTitle() {

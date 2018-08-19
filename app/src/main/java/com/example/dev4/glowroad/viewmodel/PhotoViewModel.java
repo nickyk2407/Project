@@ -27,7 +27,7 @@ public class PhotoViewModel extends ViewModel {
 
     public PhotoViewModel() {
         executor = Executors.newFixedThreadPool(5);
-        IPhotoSearchServiceApi webService = PhotoWebService.createService(IPhotoSearchServiceApi.class);
+        IPhotoSearchServiceApi webService = new PhotoWebService().createService(IPhotoSearchServiceApi.class);
         PhotoDataSourceFactory factory = new PhotoDataSourceFactory(executor, webService);
         mDataSource = factory.getMutableLiveData();
         Constants.API_DEFAULT_PAGE_KEY = 1;
