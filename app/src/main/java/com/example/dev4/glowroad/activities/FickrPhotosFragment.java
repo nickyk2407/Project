@@ -150,6 +150,9 @@ public class FickrPhotosFragment extends Fragment {
                     searchView.setIconified(true);
                     ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getTitleText());
                 }
+                if (networkState == NetworkState.FAILED) {
+                    hideProgressbar();
+                }
             }
         });
 
@@ -160,6 +163,9 @@ public class FickrPhotosFragment extends Fragment {
             @Override
             public void onRefresh() {
                 Constants.API_DEFAULT_PAGE_KEY = 1;
+                if (searchText == null){
+                    mSwipeContainer.setRefreshing(false);
+                }
                 Constants.SEARCH_TEXT = searchText;
                 mPhotoViewModel.retry(searchText);
             }
