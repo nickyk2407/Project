@@ -57,7 +57,7 @@ public class PhotoViewModel extends ViewModel {
         return networkStateLiveData;
     }
 
-    public void retry() {
+    public void retry(String query) {
         mDataSource.getValue().invalidate();
     }
 }

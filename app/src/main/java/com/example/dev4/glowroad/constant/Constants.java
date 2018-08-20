@@ -13,6 +13,6 @@ public class Constants {
     public static final String API_SEARCH_NOJSONCALLBACK = "1";
     public static final String API_SEARCH_PER_PAGE_COUNT = "20";
     public static final String API_SEARCH_EXTRAS = "url_s";
-    public static final String SEARCH_TEXT_SHIRTS = "shirts";
+    public static String SEARCH_TEXT = "searchText";
     public static int API_DEFAULT_PAGE_KEY = 1;
 }

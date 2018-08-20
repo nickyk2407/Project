@@ -1,19 +1,27 @@
 package com.example.dev4.glowroad.activities;
 
+import android.app.SearchManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.dev4.glowroad.R;
 import com.example.dev4.glowroad.adapter.PhotoViewAdapter;
@@ -37,10 +45,16 @@ public class FickrPhotosFragment extends Fragment {
     @BindView(R.id.swipeContainer)
     protected SwipeRefreshLayout mSwipeContainer;
 
+    @BindView(R.id.tv_search_text)
+    protected TextView tvSearchText;
+
     private Unbinder unbinder;
 
     private PhotoViewAdapter mPhotoAdapter;
     private PhotoViewModel mPhotoViewModel;
+    private SearchView searchView;
+    private SearchView.OnQueryTextListener queryTextListener;
+    public String searchText;
 
     public static Fragment getInstance() {
         return new FickrPhotosFragment();
@@ -50,8 +64,51 @@ public class FickrPhotosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_flickr_photos_layout, container, false);
         unbinder = ButterKnife.bind(this, view);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
         init();
         return view;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu, menu);
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+
+        if (searchItem != null) {
+            searchView = (SearchView) searchItem.getActionView();
+        }
+        TextView textView = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        textView.setTextColor(Color.WHITE);
+        if (searchView != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            queryTextListener = new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    Constants.API_DEFAULT_PAGE_KEY = 1;
+                    Constants.SEARCH_TEXT = query;
+                    searchText = query;
+                    showProgressbar();
+                    mPhotoViewModel.retry(query);
+                    searchView.onActionViewCollapsed();
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getTitleText());
+                    return true;
+                }
+            };
+            searchView.setOnQueryTextListener(queryTextListener);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
 
@@ -86,13 +143,12 @@ public class FickrPhotosFragment extends Fragment {
             public void onChanged(@Nullable NetworkState networkState) {
                 mPhotoAdapter.setNetworkState(networkState);
                 if (networkState == NetworkState.LOADED) {
-                    mSwipeContainer.setRefreshing(false);
                     hideProgressbar();
+                    mSwipeContainer.setRefreshing(false);
+                    tvSearchText.setVisibility(View.GONE);
                     rvPhotos.setVisibility(View.VISIBLE);
-                } else if (networkState == NetworkState.LOADING) {
-                    if (!mSwipeContainer.isRefreshing()) {
-                        showProgressbar();
-                    }
+                    searchView.setIconified(true);
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getTitleText());
                 }
             }
         });
@@ -104,10 +160,17 @@ public class FickrPhotosFragment extends Fragment {
             @Override
             public void onRefresh() {
                 Constants.API_DEFAULT_PAGE_KEY = 1;
-                mPhotoViewModel.retry();
+                Constants.SEARCH_TEXT = searchText;
+                mPhotoViewModel.retry(searchText);
             }
         });
 
+    }
+
+    private String getTitleText() {
+        String titleText = Constants.SEARCH_TEXT.trim();
+        return titleText.trim().length() > 0 ? Character.toUpperCase(titleText.charAt(0)) + titleText.substring(1) :
+                getString(R.string.app_name);
     }
 
     @Override
@@ -115,4 +178,5 @@ public class FickrPhotosFragment extends Fragment {
         unbinder.unbind();
         super.onDestroyView();
     }
+
 }

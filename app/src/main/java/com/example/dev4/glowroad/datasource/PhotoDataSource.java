@@ -76,12 +76,13 @@ public class PhotoDataSource extends PageKeyedDataSource<Integer, Photo> {
 
             }
         };
-
-        mWebService.search(Constants.API_SEARCH_METHOD, Constants.API_KEY, Constants.API_RESPONSE_FORMAT, Constants.API_SEARCH_NOJSONCALLBACK,
-                Constants.SEARCH_TEXT_SHIRTS, Constants.API_SEARCH_EXTRAS, Constants.API_SEARCH_PER_PAGE_COUNT, API_DEFAULT_PAGE_KEY)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+        if (Constants.SEARCH_TEXT != null && !Constants.SEARCH_TEXT.isEmpty()) {
+            mWebService.search(Constants.API_SEARCH_METHOD, Constants.API_KEY, Constants.API_RESPONSE_FORMAT, Constants.API_SEARCH_NOJSONCALLBACK,
+                    Constants.SEARCH_TEXT, Constants.API_SEARCH_EXTRAS, Constants.API_SEARCH_PER_PAGE_COUNT, API_DEFAULT_PAGE_KEY)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(observer);
+        }
 
     }
 
@@ -128,11 +129,13 @@ public class PhotoDataSource extends PageKeyedDataSource<Integer, Photo> {
             }
         };
 
-        mWebService.search(Constants.API_SEARCH_METHOD, Constants.API_KEY, Constants.API_RESPONSE_FORMAT, Constants.API_SEARCH_NOJSONCALLBACK,
-                Constants.SEARCH_TEXT_SHIRTS, Constants.API_SEARCH_EXTRAS, Constants.API_SEARCH_PER_PAGE_COUNT, API_DEFAULT_PAGE_KEY)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+        if (Constants.SEARCH_TEXT != null && !Constants.SEARCH_TEXT.isEmpty()) {
+            mWebService.search(Constants.API_SEARCH_METHOD, Constants.API_KEY, Constants.API_RESPONSE_FORMAT, Constants.API_SEARCH_NOJSONCALLBACK,
+                    Constants.SEARCH_TEXT, Constants.API_SEARCH_EXTRAS, Constants.API_SEARCH_PER_PAGE_COUNT, API_DEFAULT_PAGE_KEY)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(observer);
+        }
     }
 
     @Override
